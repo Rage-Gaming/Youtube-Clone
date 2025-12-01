@@ -1,10 +1,12 @@
 import express from "express";
-import { deletecomment, getallcomment, postcomment ,editcomment} from "../Controllers/comment.js";
+import { deletecomment, getallcomment, postComment ,editcomment, likeComment, dislikeComment} from "../Controllers/comment.js";
 
 
 const routes = express.Router();
 routes.get("/:videoid", getallcomment);
-routes.post("/postcomment", postcomment);
+routes.post("/postcomment", postComment);
 routes.delete("/deletecomment/:id", deletecomment);
 routes.post("/editcomment/:id", editcomment);
+routes.post("/likecomment/:id", likeComment);
+routes.post("/dislikecomment/:id", dislikeComment);
 export default routes;
