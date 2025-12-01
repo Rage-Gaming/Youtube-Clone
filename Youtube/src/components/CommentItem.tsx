@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { ThumbsDown, ThumbsUp, MapPin, RefreshCw } from "lucide-react"; 
+import { ThumbsDown, ThumbsUp, MapPin, RefreshCw } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import axiosInstance from "@/lib/axiosinstance";
 import { toast } from "sonner";
@@ -27,7 +27,7 @@ export interface Comment {
   commentbody: string;
   usercommented: string;
   usercommentedImage: string;
-  userCity?: string; 
+  userCity?: string;
   commentedon: string;
   likes: number;
   dislikes: number;
@@ -46,11 +46,11 @@ const CommentItem = ({ comment, user, onDelete }: CommentItemProps) => {
   const [dislikes, setDislikes] = useState(comment?.dislikes || 0);
   const [isLiked, setIsLiked] = useState(false);
   const [isDisliked, setIsDisliked] = useState(false);
-  
+
   const [isTranslated, setIsTranslated] = useState(false);
   const [translatedText, setTranslatedText] = useState("");
   const [isTranslating, setIsTranslating] = useState(false);
-  
+
   const [targetLang, setTargetLang] = useState("en");
 
   const [isEditing, setIsEditing] = useState(false);
@@ -71,12 +71,12 @@ const CommentItem = ({ comment, user, onDelete }: CommentItemProps) => {
     setIsTranslating(true);
     try {
       const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLang}&dt=t&q=${encodeURI(comment.commentbody)}`;
-      
+
       const res = await fetch(url);
       const data = await res.json();
-      
+
       const result = data[0].map((item: any) => item[0]).join("");
-      
+
       setTranslatedText(result);
       setIsTranslated(true);
     } catch (error) {
@@ -124,11 +124,26 @@ const CommentItem = ({ comment, user, onDelete }: CommentItemProps) => {
 
   const handleUpdate = async () => {
     if (!editText.trim()) return;
+
+    const allowedPattern = /^[a-zA-Z0-9\s.,!?'"-]*$/;
+
+    if (!allowedPattern.test(editText)) {
+      toast.error("Special characters are not allowed");
+      return;
+    }
+    
     try {
       await axiosInstance.post(`/comment/editcomment/${comment._id}`, { commentbody: editText });
       setIsEditing(false);
       toast.success("Updated");
-    } catch (error) { console.log(error); }
+    } catch (error: any) {
+      if (error.response?.status === 400) {
+        toast.error(error.response.data.message);
+      } else {
+        console.log(error);
+        toast.error("Update failed");
+      }
+    }
   };
 
   return (
@@ -137,11 +152,11 @@ const CommentItem = ({ comment, user, onDelete }: CommentItemProps) => {
         <AvatarImage src={comment.usercommentedImage} />
         <AvatarFallback>{comment.usercommented?.[0] || "U"}</AvatarFallback>
       </Avatar>
-      
+
       <div className="flex-1 min-w-0">
         <div className="flex flex-wrap items-center gap-2 mb-1">
           <span className="font-semibold text-sm text-gray-900">{comment.usercommented}</span>
-          
+
           {comment.userCity && (
             <div className="flex items-center text-[10px] font-medium text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">
               <MapPin className="w-3 h-3 mr-1" />
@@ -180,20 +195,20 @@ const CommentItem = ({ comment, user, onDelete }: CommentItemProps) => {
               </Button>
 
               <div className="flex items-center bg-gray-50 rounded-full border border-gray-200 ml-2 h-8">
-                
+
                 {!isTranslated && (
-                   <div className="flex items-center">
-                     <span className="text-[9px] text-gray-400 pl-2">To:</span>
-                     <select
-                       value={targetLang}
-                       onChange={(e) => setTargetLang(e.target.value)}
-                       className="bg-transparent text-[11px] text-gray-600 font-medium h-full pl-1 pr-2 outline-none cursor-pointer hover:text-black appearance-none"
-                     >
-                       {LANGUAGES.map((lang) => (
-                         <option key={lang.code} value={lang.code}>{lang.name}</option>
-                       ))}
-                     </select>
-                   </div>
+                  <div className="flex items-center">
+                    <span className="text-[9px] text-gray-400 pl-2">To:</span>
+                    <select
+                      value={targetLang}
+                      onChange={(e) => setTargetLang(e.target.value)}
+                      className="bg-transparent text-[11px] text-gray-600 font-medium h-full pl-1 pr-2 outline-none cursor-pointer hover:text-black appearance-none"
+                    >
+                      {LANGUAGES.map((lang) => (
+                        <option key={lang.code} value={lang.code}>{lang.name}</option>
+                      ))}
+                    </select>
+                  </div>
                 )}
 
                 <Button
@@ -204,11 +219,11 @@ const CommentItem = ({ comment, user, onDelete }: CommentItemProps) => {
                   className="h-full px-3 text-xs hover:bg-white hover:text-indigo-600 rounded-r-full border-l border-gray-200"
                 >
                   {isTranslating ? (
-                     <RefreshCw className="w-3 h-3 animate-spin" /> 
+                    <RefreshCw className="w-3 h-3 animate-spin" />
                   ) : isTranslated ? (
-                     "Original"
+                    "Original"
                   ) : (
-                     "Translate"
+                    "Translate"
                   )}
                 </Button>
               </div>

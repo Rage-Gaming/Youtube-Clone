@@ -8,7 +8,7 @@ import axiosInstance from "@/lib/axiosinstance";
 import { toast } from "sonner";
 import CommentItem, { Comment } from "./CommentItem";
 
-const Comments = ({ videoId }: { videoId: string }) => {
+const Comments = ({ videoId }: { videoId: any }) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);

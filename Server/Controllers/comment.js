@@ -5,7 +5,6 @@ export const postComment = async (req, res) => {
   const { videoid, userid, commentbody, usercommented, usercommentedImage, userCity } = req.body;
 
   try {
-    // 1. BLOCK SPECIAL CHARACTERS
     const allowedPattern = /^[a-zA-Z0-9\s.,!?'"-]*$/;
     if (!allowedPattern.test(commentbody)) {
       return res.status(400).json({ 
@@ -19,7 +18,6 @@ export const postComment = async (req, res) => {
       commentbody,
       usercommented,
       usercommentedImage,
-      // Use the city sent from frontend, or default to "Unknown" (Removed "Kerala")
       userCity: userCity || "Unknown Location", 
     });
 
@@ -54,20 +52,27 @@ export const deletecomment = async (req, res) => {
   }
 };
 
-export const editcomment = async (req, res) => {
-  const { id: _id } = req.params;
+export const editComment = async (req, res) => {
+  const { id } = req.params;
   const { commentbody } = req.body;
-  if (!mongoose.Types.ObjectId.isValid(_id)) {
-    return res.status(404).send("comment unavailable");
-  }
+
   try {
-    const updatecomment = await comment.findByIdAndUpdate(_id, {
-      $set: { commentbody: commentbody },
-    });
-    res.status(200).json(updatecomment);
-  } catch (error) {
-    console.error(" error:", error);
-    return res.status(500).json({ message: "Something went wrong" });
+    const allowedPattern = /^[a-zA-Z0-9\s.,!?'"-]*$/;
+    if (!allowedPattern.test(commentbody)) {
+      return res.status(400).json({ 
+        message: "Comment contains invalid special characters." 
+      });
+    }
+
+    const updatedComment = await comment.findByIdAndUpdate(
+      id,
+      { $set: { commentbody: commentbody } },
+      { new: true }
+    );
+
+    res.status(200).json(updatedComment);
+  } catch (err) {
+    res.status(500).json(err);
   }
 };
 
