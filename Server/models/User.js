@@ -1,4 +1,3 @@
-// backend/models/user.js
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
@@ -16,14 +15,13 @@ const userSchema = new mongoose.Schema(
             type: String
         },
 
-        // --- MONETIZATION & DOWNLOAD FIELDS ---
         plan: {
             type: String,
             enum: ['Free Plan', 'Bronze Plan', 'Silver Plan', 'Gold Plan'],
             default: 'Free Plan'
         },
         lastDownloadDate: {
-            type: String, // Will store as "YYYY-MM-DD"
+            type: String,
             default: ""
         },
         dailyDownloads: {
