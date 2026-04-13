@@ -1,7 +1,6 @@
 import video from "../Modals/Video.js";
 
 export const uploadvideo = async (req, res) => {
-  console.log("req.file:", req.file);
   if (req.file === undefined) {
     return res
       .status(404)

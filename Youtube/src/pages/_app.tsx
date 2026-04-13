@@ -1,22 +1,26 @@
+// _app.tsx
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
-import { Toaster } from "@/components/ui/sonner"
+import { Toaster } from "@/components/ui/sonner";
 import { UserProvider } from "@/lib/AuthContext";
+import { ThemeProvider } from "next-themes";
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <UserProvider>
-      <div className="min-h-screen bg-white text-black">
-        <title>You-Tube Clone</title>
-        <Header />
-        <Toaster />
-        <div className="flex">
-          <Sidebar />
-          <Component {...pageProps} />
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+      <UserProvider>
+        <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
+          <title>You-Tube Clone</title>
+          <Header />
+          <Toaster />
+          <div className="flex">
+            <Sidebar />
+            <Component {...pageProps} />
+          </div>
         </div>
-      </div>
-    </UserProvider>
-  )
+      </UserProvider>
+    </ThemeProvider>
+  );
 }

@@ -1,30 +1,30 @@
-import comment from "../Modals/Comment.js";
+import comment from "../models/Comment.js";
 import mongoose from "mongoose";
 
 export const postComment = async (req, res) => {
-  const { videoid, userid, commentbody, usercommented, usercommentedImage, userCity } = req.body;
+  const { videoid, userid, commentbody, usercommented, userCity, originalLanguage } = req.body;
+
+  // ❌ STRICT RULE 1: Do not allow special characters
+  // This regex allows letters, numbers, spaces, basic punctuation, and multi-language unicode
+  const isValidText = /^[a-zA-Z0-9\s.,!?\u00C0-\u1FFF\u2C00-\uD7FF]+$/.test(commentbody);
+
+  if (!isValidText) {
+    return res.status(400).json({ message: "Special characters are not allowed." });
+  }
 
   try {
-    const allowedPattern = /^[a-zA-Z0-9\s.,!?'"-]*$/;
-    if (!allowedPattern.test(commentbody)) {
-      return res.status(400).json({ 
-        message: "Comment contains invalid special characters." 
-      });
-    }
-
     const newComment = new comment({
       videoid,
       userid,
       commentbody,
       usercommented,
-      usercommentedImage,
-      userCity: userCity || "Unknown Location", 
+      userCity: userCity || "Unknown",
+      originalLanguage: originalLanguage || "auto"
     });
-
-    const savedComment = await newComment.save();
-    res.status(200).json({ comment: savedComment });
-  } catch (err) {
-    res.status(500).json(err);
+    await newComment.save();
+    res.status(200).json(newComment);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
   }
 };
 
@@ -59,8 +59,8 @@ export const editComment = async (req, res) => {
   try {
     const allowedPattern = /^[a-zA-Z0-9\s.,!?'"-]*$/;
     if (!allowedPattern.test(commentbody)) {
-      return res.status(400).json({ 
-        message: "Comment contains invalid special characters." 
+      return res.status(400).json({
+        message: "Comment contains invalid special characters."
       });
     }
 
@@ -120,58 +120,33 @@ export const likeComment = async (req, res) => {
 };
 
 export const dislikeComment = async (req, res) => {
-  const commentId = req.params.id;
-  const userId = req.body.userId;
+  const { id } = req.params; // Comment ID
+  const { userid } = req.body;
 
   try {
-    const targetComment = await comment.findById(commentId);
-    if (!targetComment) return res.status(404).json("Comment not found");
+    const commentData = await comment.findById(id);
+    if (!commentData) return res.status(404).json({ message: "Comment not found" });
 
-    // --- SCENARIO 1: ALREADY DISLIKED (User wants to UN-DISLIKE) ---
-    if (targetComment.usersDislikes.includes(userId)) {
-      await comment.findByIdAndUpdate(commentId, {
-        $pull: { usersDislikes: userId },
-        $inc: { dislikes: -1 } // Decrease dislike count
-      });
-      return res.status(200).json({ disliked: false, message: "Dislike removed" });
-    } 
-    
-    // --- SCENARIO 2: NEW DISLIKE ---
-    else {
-      // SPECIAL RULE: Check if dislikes reach 2
-      // We check current length + 1 (the new dislike coming in)
-      if (targetComment.usersDislikes.length + 1 >= 2) {
-        
-        await comment.findByIdAndDelete(commentId);
-        
-        // Return a specific flag so frontend knows to remove it from UI
-        return res.status(200).json({ 
-          commentDeleted: true, 
-          message: "Comment deleted due to excessive dislikes" 
-        });
-      }
-
-      // STANDARD DISLIKE LOGIC (If count < 2)
-      // We need to build the query to handle potentially removing a 'Like'
-      const isLiked = targetComment.usersLikes.includes(userId);
-      
-      let updateQuery = {
-        $addToSet: { usersDislikes: userId },
-        $pull: { usersLikes: userId },
-        $inc: { dislikes: 1 }
-      };
-
-      // If they previously liked it, we must also decrement the 'likes' counter
-      if (isLiked) {
-        updateQuery.$inc.likes = -1;
-      }
-
-      await comment.findByIdAndUpdate(commentId, updateQuery);
-      
-      return res.status(200).json({ disliked: true, message: "Dislike added" });
+    // Add user to dislikes if not already there
+    if (!commentData.usersDislikes.includes(userid)) {
+      commentData.usersDislikes.push(userid);
+      // Remove from likes if they had liked it
+      commentData.usersLikes = commentData.usersLikes.filter(uid => uid.toString() !== userid);
     }
+
+    // ❌ STRICT RULE 2: Auto-delete if they receive 2 dislikes
+    if (commentData.usersDislikes.length >= 2) {
+      await comment.findByIdAndDelete(id);
+      return res.status(200).json({ message: "Comment automatically deleted due to negative feedback." });
+    }
+
+    // Otherwise, update the counts and save
+    commentData.dislikes = commentData.usersDislikes.length;
+    commentData.likes = commentData.usersLikes.length;
+
+    await commentData.save();
+    res.status(200).json(commentData);
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: "Internal Server Error", error });
+    res.status(400).json({ message: error.message });
   }
 };
