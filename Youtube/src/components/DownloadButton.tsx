@@ -3,7 +3,7 @@ import { Download } from 'lucide-react';
 import axiosInstance from '@/lib/axiosinstance';
 import { useUser } from '@/lib/AuthContext';
 import { toast } from 'sonner';
-import UpgradeModal from './UpgradeModal'; //
+import UpgradeModal from './UpgradeModal';
 
 export default function DownloadButton({ videoUrl, videoTitle }:any) {
   const { user } = useUser();
@@ -15,13 +15,11 @@ export default function DownloadButton({ videoUrl, videoTitle }:any) {
     setIsDownloading(true);
 
     try {
-      // 1. Check daily limit on backend
       const res = await axiosInstance.post('/video/check-download', { userId: user._id });
       
       if (res.data.allowed) {
         toast.success("Download started!");
         
-        // 2. Browser file download logic
         const response = await fetch(videoUrl);
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
@@ -35,7 +33,6 @@ export default function DownloadButton({ videoUrl, videoTitle }:any) {
       }
     } catch (error: any) {
       if (error.response?.status === 403) {
-        // 3. Limit reached -> Open Razorpay Pricing!
         setIsModalOpen(true); 
       } else {
         toast.error("Something went wrong checking download eligibility.");

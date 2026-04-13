@@ -1,4 +1,4 @@
-import video from "../Modals/Video.js";
+import video from "../models/Video.js";
 
 export const uploadvideo = async (req, res) => {
   if (req.file === undefined) {
@@ -27,7 +27,6 @@ export const uploadvideo = async (req, res) => {
 export const getallvideo = async (req, res) => {
   try {
     const files = await video.find();
-    console.log(files)
     return res.status(200).send(files);
   } catch (error) {
     console.error(" error:", error);

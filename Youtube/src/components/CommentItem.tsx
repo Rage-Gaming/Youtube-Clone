@@ -155,7 +155,7 @@ const CommentItem = ({ comment, user, onDelete }: CommentItemProps) => {
 
       <div className="flex-1 min-w-0">
         <div className="flex flex-wrap items-center gap-2 mb-1">
-          <span className="font-semibold text-sm text-gray-900">{comment.usercommented}</span>
+          <span className="font-semibold text-sm text-primary">{comment.usercommented}</span>
 
           {comment.userCity && (
             <div className="flex items-center text-[10px] font-medium text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">
@@ -164,7 +164,7 @@ const CommentItem = ({ comment, user, onDelete }: CommentItemProps) => {
             </div>
           )}
 
-          <span className="text-xs text-gray-500">
+          <span className="text-xs text-primary">
             {comment.commentedon ? formatDistanceToNow(new Date(comment.commentedon)) : "Just now"} ago
           </span>
         </div>
@@ -179,18 +179,18 @@ const CommentItem = ({ comment, user, onDelete }: CommentItemProps) => {
           </div>
         ) : (
           <>
-            <p className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap mb-2 break-words">
+            <p className="text-sm text-primary leading-relaxed whitespace-pre-wrap mb-2 break-words">
               {isTranslated ? translatedText : comment.commentbody}
             </p>
 
-            <div className="flex flex-wrap gap-2 items-center text-sm text-gray-500">
+            <div className="flex flex-wrap gap-2 items-center text-sm text-primary">
               <Button variant="ghost" size="sm" className="rounded-full px-3 h-8 hover:bg-gray-100" onClick={handleLike}>
-                <ThumbsUp className={`w-4 h-4 mr-1.5 ${isLiked ? "fill-black text-black" : ""}`} />
+                <ThumbsUp className={`w-4 h-4 mr-1.5 ${isLiked ? "fill-primary text-primary" : ""}`} />
                 {likes > 0 && likes.toLocaleString()}
               </Button>
 
               <Button variant="ghost" size="sm" className="rounded-full px-3 h-8 hover:bg-gray-100" onClick={handleDislike}>
-                <ThumbsDown className={`w-4 h-4 mr-1.5 ${isDisliked ? "fill-black text-black" : ""}`} />
+                <ThumbsDown className={`w-4 h-4 mr-1.5 ${isDisliked ? "fill-primary text-primary" : ""}`} />
                 {dislikes > 0 && dislikes.toLocaleString()}
               </Button>
 

@@ -1,9 +1,9 @@
-// _app.tsx
+// Youtube/src/pages/_app.tsx
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
-import { Toaster } from "@/components/ui/sonner";
+import { Toaster } from "@/components/ui/sonner"
 import { UserProvider } from "@/lib/AuthContext";
 import { ThemeProvider } from "next-themes";
 
@@ -22,5 +22,5 @@ export default function App({ Component, pageProps }: AppProps) {
         </div>
       </UserProvider>
     </ThemeProvider>
-  );
+  )
 }

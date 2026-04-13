@@ -1,4 +1,4 @@
-import watchlater from "../Modals/WatchLater.js";
+import watchlater from "../models/WatchLater.js";
 
 export const handlewatchlater = async (req, res) => {
   const { userId } = req.body;
