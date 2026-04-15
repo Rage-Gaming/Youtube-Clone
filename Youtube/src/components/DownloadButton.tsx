@@ -5,7 +5,7 @@ import { useUser } from '@/lib/AuthContext';
 import { toast } from 'sonner';
 import UpgradeModal from './UpgradeModal';
 
-export default function DownloadButton({ videoUrl, videoTitle }:any) {
+export default function DownloadButton({ videoUrl, videoTitle, videoId }:any) {
   const { user } = useUser();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -15,10 +15,13 @@ export default function DownloadButton({ videoUrl, videoTitle }:any) {
     setIsDownloading(true);
 
     try {
-      const res = await axiosInstance.post('/video/check-download', { userId: user._id });
+        const res = await axiosInstance.post('/video/record-download', { 
+        userId: user._id,
+        videoId: videoId 
+      });
       
       if (res.data.allowed) {
-        toast.success("Download started!");
+        toast.success("Download started & saved to your profile!");
         
         const response = await fetch(videoUrl);
         const blob = await response.blob();
@@ -33,9 +36,9 @@ export default function DownloadButton({ videoUrl, videoTitle }:any) {
       }
     } catch (error: any) {
       if (error.response?.status === 403) {
-        setIsModalOpen(true); 
+        setIsModalOpen(true); // Pop open Razorpay modal
       } else {
-        toast.error("Something went wrong checking download eligibility.");
+        toast.error("Error processing download.");
       }
     } finally {
       setIsDownloading(false);

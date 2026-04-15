@@ -1,26 +1,22 @@
-// backend/Controllers/user.js
-import User from "../models/User.js";
+import User from '../models/Auth.js';
 
 export const login = async (req, res) => {
     try {
         const { email, name, image } = req.body;
 
-        // 1. Check if the user already exists in MongoDB
         let existingUser = await User.findOne({ email });
 
-        // 2. If they don't exist, this is a new user! Create them in MongoDB.
         if (!existingUser) {
             const newUser = new User({
                 email,
                 name,
                 image,
-                plan: "Free Plan", // Default plan for everyone
+                plan: "Free Plan",
                 dailyDownloads: 0
             });
             existingUser = await newUser.save();
         }
 
-        // 3. Send the user data back exactly how AuthContext.tsx expects it
         res.status(200).json({
             success: true,
             result: existingUser
