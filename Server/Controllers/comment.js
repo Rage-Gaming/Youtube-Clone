@@ -121,7 +121,7 @@ export const likeComment = async (req, res) => {
 
 export const dislikeComment = async (req, res) => {
   const { id } = req.params; // Comment ID
-  const { userid } = req.body;
+  const userid = req.body.userId || req.body.userid;
 
   try {
     const commentData = await comment.findById(id);
