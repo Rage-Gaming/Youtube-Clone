@@ -130,7 +130,7 @@ const VideoPlayer = ({ video, onNextVideo, onShowComments }: VideoPlayerProps) =
           onTimeUpdate={handleTimeUpdate} // <-- Added Time Tracker here
         >
           {/* Ensure NEXT_PUBLIC_ is prefixed if your env variables aren't exposed to the client! */}
-          <source src={`${process.env.BACKEND_URL || process.env.NEXT_PUBLIC_BACKEND_URL}/${video?.filepath}`} type="video/mp4" />
+          <source src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${video?.filepath}`} type="video/mp4" />
           Your browser does not support the video player.
         </video>
 
