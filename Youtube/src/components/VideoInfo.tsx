@@ -3,18 +3,23 @@ import React from 'react';
 import { ThumbsUp, ThumbsDown, Share2 } from 'lucide-react';
 import DownloadButton from './DownloadButton'; 
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
 export default function VideoInfo({ video }: any) {
   return (
     <div className="mt-4">
-      <h1 className="text-xl font-bold">{video?.title}</h1>
+      <h1 className="text-xl font-bold">{video?.videotitle || video?.title}</h1>
       
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mt-2 gap-4">
         
         {/* Channel Info */}
         <div className="flex items-center gap-3">
-          <img src={video?.uploaderImage || "/default-avatar.png"} className="w-10 h-10 rounded-full" alt="avatar" />
+          <Avatar className="w-10 h-10">
+            {video?.uploaderImage && <AvatarImage src={video.uploaderImage} />}
+            <AvatarFallback>{video?.videochanel ? video.videochanel[0].toUpperCase() : "U"}</AvatarFallback>
+          </Avatar>
           <div>
-            <h3 className="font-semibold">{video?.uploaderName || "Unknown Creator"}</h3>
+            <h3 className="font-semibold">{video?.videochanel || video?.uploaderName || "Unknown Creator"}</h3>
             <p className="text-xs text-muted-foreground">{video?.views || 0} views</p>
           </div>
         </div>
@@ -37,7 +42,7 @@ export default function VideoInfo({ video }: any) {
 
           <DownloadButton 
             videoUrl={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${video?.filepath}`} 
-            videoTitle={video?.title || 'video'} 
+            videoTitle={video?.videotitle || video?.title || 'video'} 
             videoId={video?._id} 
           />
 
