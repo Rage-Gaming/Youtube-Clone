@@ -35,44 +35,38 @@ app.get("/", (req, res) => {
 
 app.use(bodyParser.json())
 
+import paymentroutes from "./routes/payment.js"
+
 app.use("/user", userroutes);
 app.use("/video", videoroutes);
 app.use("/like", likeroutes);
 app.use("/watch", watchlaterroutes);
 app.use("/history", historyroutes);
 app.use("/comment", commentroutes);
+app.use("/payment", paymentroutes);
 app.use("/uploads", express.static(path.join("uploads")));
 
 console.clear();
 
 io.on("connection", (socket) => {
-    console.log(`User connected to signaling server: ${socket.id}`);
+    console.log(`User connected for VoIP: ${socket.id}`);
 
+    // Join a specific video room
     socket.on("join-room", (roomId) => {
         socket.join(roomId);
-        console.log(`User ${socket.id} joined room ${roomId}`);
         socket.to(roomId).emit("user-connected", socket.id);
     });
 
-    socket.on("offer", (payload) => {
-        io.to(payload.target).emit("offer", payload);
-    });
+    // Relay WebRTC connection data between peers
+    socket.on("offer", (payload) => io.to(payload.target).emit("offer", payload));
+    socket.on("answer", (payload) => io.to(payload.target).emit("answer", payload));
+    socket.on("ice-candidate", (incoming) => io.to(incoming.target).emit("ice-candidate", incoming.candidate));
 
-    socket.on("answer", (payload) => {
-        io.to(payload.target).emit("answer", payload);
-    });
-
-    socket.on("ice-candidate", (incoming) => {
-        io.to(incoming.target).emit("ice-candidate", incoming.candidate);
-    });
-
-    socket.on("disconnect", () => {
-        console.log(`User disconnected: ${socket.id}`);
-    });
+    socket.on("disconnect", () => console.log(`User disconnected: ${socket.id}`));
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
 

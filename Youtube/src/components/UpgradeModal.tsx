@@ -43,7 +43,7 @@ export default function UpgradeModal({ isOpen, onClose }:any) {
       const { data: order } = await axiosInstance.post('/payment/create-order', { plan: planName });
 
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID, 
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_SIoUfQlQAsPqMO", 
         amount: order.amount,
         currency: order.currency,
         name: "YouTube Clone Premium",
@@ -52,10 +52,12 @@ export default function UpgradeModal({ isOpen, onClose }:any) {
         handler: async function (response: any) {
           try {
             await axiosInstance.post('/payment/verify', {
-              ...response,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
               plan: planName,
               userId: user._id,
-              userEmail: user.email
+              email: user.email
             });
             updateUserPlanLocally(planName);
             toast.success(`Welcome to the ${planName}!`);

@@ -58,8 +58,16 @@ export const UserProvider = ({ children }) => {
     return () => unsubcribe();
   }, []);
 
+  const updateUserPlanLocally = (plan) => {
+    if (user) {
+      const updatedUser = { ...user, plan };
+      setUser(updatedUser);
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+    }
+  };
+
   return (
-    <UserContext.Provider value={{ user, login, logout, handlegooglesignin }}>
+    <UserContext.Provider value={{ user, login, logout, handlegooglesignin, updateUserPlanLocally }}>
       {children}
     </UserContext.Provider>
   );

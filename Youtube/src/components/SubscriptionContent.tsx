@@ -64,7 +64,7 @@ export default function SubscriptionContent() {
       const { data: order } = await axiosInstance.post('/payment/create-order', { plan: planName, amount: price });
 
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID, 
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_SIoUfQlQAsPqMO", 
         amount: order.amount,
         currency: order.currency,
         name: "YouTube Clone Premium",
@@ -75,10 +75,12 @@ export default function SubscriptionContent() {
             // Verify payment on backend. 
             // Note: Your backend should trigger the NodeMailer email invoice inside this route!
             await axiosInstance.post('/payment/verify', {
-              ...response,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
               plan: planName,
               userId: user._id,
-              userEmail: user.email
+              email: user.email
             });
             
             updateUserPlanLocally(planName);
