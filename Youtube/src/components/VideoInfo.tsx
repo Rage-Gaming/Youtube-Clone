@@ -35,9 +35,8 @@ export default function VideoInfo({ video }: any) {
             <Share2 size={18} /> Share
           </button>
 
-          {/* 👇 EXACTLY HERE: Pass the _id to the DownloadButton */}
           <DownloadButton 
-            videoUrl={`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000'}/${video?.filepath}`} 
+            videoUrl={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${video?.filepath}`} 
             videoTitle={video?.title || 'video'} 
             videoId={video?._id} 
           />

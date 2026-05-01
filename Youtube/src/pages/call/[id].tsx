@@ -4,13 +4,12 @@ import io, { Socket } from 'socket.io-client';
 import { MonitorUp, Video, VideoOff, Mic, MicOff, CircleDot, PhoneOff } from 'lucide-react';
 import { toast } from 'sonner';
 
-const SOCKET_URL = "http://localhost:5000"; 
+const SOCKET_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 export default function VideoCallRoom() {
   const router = useRouter();
   const { id: roomId } = router.query;
 
-  // Next.js SSR Fix: Only render heavy browser APIs after hydration
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
     setMounted(true);
