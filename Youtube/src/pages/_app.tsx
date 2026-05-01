@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { UserProvider } from "@/lib/AuthContext";
 import { ThemeProvider, useTheme } from "next-themes";
 import { useEffect, useState, createContext, useContext } from "react";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 // --- DEMO CONFIG ---
 const DEMO_MODE = false;
@@ -125,7 +126,11 @@ export default function App({ Component, pageProps }: AppProps) {
             <Toaster />
             <div className="flex">
               <Sidebar />
-              <Component {...pageProps} />
+              <div className="flex-1 overflow-x-hidden">
+                <ErrorBoundary>
+                  <Component {...pageProps} />
+                </ErrorBoundary>
+              </div>
             </div>
           </div>
         </SmartEnvironmentManager>
