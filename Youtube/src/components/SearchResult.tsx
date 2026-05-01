@@ -77,9 +77,9 @@ const SearchResult = ({ query }: any) => {
   return (
     <div className="space-y-6">
       {/* Video Results */}
-      {video.length > 0 && (
+      {video?.length > 0 && (
         <div className="space-y-4">
-          {video.map((video: any) => (
+          {video?.map((video: any) => (
             <div key={video._id} className="flex gap-4 group">
               <Link href={`/watch/${video._id}`} className="flex-shrink-0">
                 <div className="relative w-80 aspect-video bg-gray-100 rounded-lg overflow-hidden">
@@ -138,7 +138,7 @@ const SearchResult = ({ query }: any) => {
       {hasResults && (
         <div className="text-center py-8">
           <p className="text-gray-600">
-            Showing {videos.length} results for "{query}"
+            Showing {video?.length} results for "{query}"
           </p>
         </div>
       )}
