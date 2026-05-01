@@ -142,10 +142,16 @@ export default function CallPage() {
 
   const stopScreenShare = async () => {
     try {
+      // Stop the screen share tracks first
+      if (myVideoRef.current && myVideoRef.current.srcObject) {
+         const screenStream = myVideoRef.current.srcObject as MediaStream;
+         screenStream.getTracks().forEach(track => track.stop());
+      }
+      
       const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
       if (callRef.current) {
         const videoTrack = stream.getVideoTracks()[0];
-        const sender = callRef.current.peerConnection.getSenders().find((s: any) => s.track.kind === 'video');
+        const sender = callRef.current.peerConnection.getSenders().find((s: any) => s.track && s.track.kind === 'video');
         if (sender) {
           sender.replaceTrack(videoTrack);
         }
@@ -153,6 +159,8 @@ export default function CallPage() {
       setMyStream(stream);
       if (myVideoRef.current) myVideoRef.current.srcObject = stream;
       setIsScreenSharing(false);
+      setIsVideoMuted(false);
+      setIsAudioMuted(false);
     } catch (err) {
       console.error(err);
     }
@@ -168,13 +176,46 @@ export default function CallPage() {
     }
   };
 
-  const toggleVideo = () => {
-    if (myStream) {
-      const videoTrack = myStream.getVideoTracks()[0];
-      if (videoTrack) {
-        videoTrack.enabled = !videoTrack.enabled;
-        setIsVideoMuted(!videoTrack.enabled);
+  const toggleVideo = async () => {
+    if (isVideoMuted) {
+      // Turn camera BACK ON
+      try {
+        const newStream = await navigator.mediaDevices.getUserMedia({ video: true });
+        const newVideoTrack = newStream.getVideoTracks()[0];
+        
+        if (myStream) {
+          myStream.addTrack(newVideoTrack);
+          if (callRef.current) {
+            const sender = callRef.current.peerConnection.getSenders().find((s: any) => s.track && s.track.kind === 'video');
+            if (sender) {
+              sender.replaceTrack(newVideoTrack);
+            }
+          }
+        } else {
+           setMyStream(newStream);
+           if (myVideoRef.current) myVideoRef.current.srcObject = newStream;
+        }
+        setIsVideoMuted(false);
+      } catch (err) {
+        toast.error("Could not turn camera back on.");
       }
+    } else {
+      // Turn camera OFF completely to disable hardware light
+      if (myStream) {
+        const videoTrack = myStream.getVideoTracks()[0];
+        if (videoTrack) {
+          videoTrack.stop();
+          myStream.removeTrack(videoTrack);
+          
+          // Optionally send a black frame or just let the peer connection handle the stopped track
+          if (callRef.current) {
+             const sender = callRef.current.peerConnection.getSenders().find((s: any) => s.track && s.track.kind === 'video');
+             // Keeping the sender active but replacing track with null isn't universally supported seamlessly without renegotiation in all browsers via PeerJS, 
+             // but track.stop() alone usually freezes the last frame or sends black on the remote end natively.
+          }
+        }
+      }
+      setIsVideoMuted(true);
     }
   };
 
